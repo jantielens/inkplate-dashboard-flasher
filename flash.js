@@ -242,49 +242,98 @@ async function flashFirmware(port, firmwareUrl) {
         let downloadSuccess = false;
         let lastError = null;
         
-        // Prepare fallback URLs if it's a GitHub release
-        const fallbackUrls = [firmwareUrl];
+        // Prepare fallback URLs - GitHub releases have CORS restrictions
+        const fallbackUrls = [];
         
         if (firmwareUrl.includes('github.com') && firmwareUrl.includes('/releases/download/')) {
-            // Extract parts for jsdelivr CDN: https://cdn.jsdelivr.net/gh/user/repo@version/path/to/file
+            // GitHub release assets don't support CORS from browsers
+            // Solution: Use GitHub's authenticated API or a proxy
+            console.warn('GitHub release URL detected - CORS restrictions apply');
+            
+            // Try using GitHub's API endpoint which supports CORS better
             const match = firmwareUrl.match(/github\.com\/([^/]+)\/([^/]+)\/releases\/download\/([^/]+)\/(.*)/);
             if (match) {
                 const [, owner, repo, tag, filename] = match;
-                const jsdelivrUrl = `https://cdn.jsdelivr.net/gh/${owner}/${repo}@${tag}/${filename}`;
-                fallbackUrls.push(jsdelivrUrl);
-                console.log('Added jsDelivr fallback:', jsdelivrUrl);
+                
+                // GitHub's releases API endpoint (browser-accessible with CORS)
+                const apiUrl = `https://api.github.com/repos/${owner}/${repo}/releases/tags/${tag}`;
+                fallbackUrls.push({ type: 'github-api', url: apiUrl, filename: filename });
+                console.log('Will fetch via GitHub API:', apiUrl);
             }
+            
+            // Add original URL as last resort (likely won't work)
+            fallbackUrls.push({ type: 'direct', url: firmwareUrl });
+        } else {
+            // For non-GitHub URLs, try direct
+            fallbackUrls.push({ type: 'direct', url: firmwareUrl });
         }
         
-        // Try each URL
+        // Try each URL method
         for (let i = 0; i < fallbackUrls.length && !downloadSuccess; i++) {
-            const url = fallbackUrls[i];
-            console.log(`Attempt ${i + 1}/${fallbackUrls.length}: ${url}`);
+            const urlConfig = fallbackUrls[i];
+            console.log(`Attempt ${i + 1}/${fallbackUrls.length}:`, urlConfig.type || 'direct');
             
             try {
                 updateProgress(10 + (i * 2), `Downloading firmware (attempt ${i + 1})...`);
                 
-                const response = await fetch(url, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/octet-stream',
-                        'Cache-Control': 'no-cache'
-                    },
-                    redirect: 'follow'
-                });
-                
-                if (response.ok) {
-                    firmwareBuffer = await response.arrayBuffer();
-                    if (firmwareBuffer.byteLength > 0) {
-                        console.log('✓ Download successful! Size:', firmwareBuffer.byteLength, 'bytes');
-                        downloadSuccess = true;
-                        break;
-                    } else {
-                        lastError = 'Downloaded file is empty';
+                if (urlConfig.type === 'github-api') {
+                    // Fetch release info from GitHub API to get browser_download_url
+                    const apiResponse = await fetch(urlConfig.url, {
+                        headers: {
+                            'Accept': 'application/vnd.github+json'
+                        }
+                    });
+                    
+                    if (apiResponse.ok) {
+                        const releaseData = await apiResponse.json();
+                        const asset = releaseData.assets?.find(a => a.name === urlConfig.filename);
+                        
+                        if (asset && asset.browser_download_url) {
+                            console.log('Found asset via API, downloading:', asset.browser_download_url);
+                            const binResponse = await fetch(asset.browser_download_url, {
+                                headers: {
+                                    'Accept': 'application/octet-stream'
+                                },
+                                redirect: 'follow'
+                            });
+                            
+                            if (binResponse.ok) {
+                                firmwareBuffer = await binResponse.arrayBuffer();
+                                if (firmwareBuffer.byteLength > 0) {
+                                    console.log('✓ Download successful! Size:', firmwareBuffer.byteLength, 'bytes');
+                                    downloadSuccess = true;
+                                    break;
+                                }
+                            }
+                        } else {
+                            lastError = 'Asset not found in release';
+                        }
                     }
                 } else {
-                    lastError = `HTTP ${response.status}: ${response.statusText}`;
-                    console.warn(`✗ HTTP error: ${lastError}`);
+                    // Direct fetch
+                    const url = urlConfig.url || urlConfig;
+                    const response = await fetch(url, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/octet-stream',
+                            'Cache-Control': 'no-cache'
+                        },
+                        redirect: 'follow'
+                    });
+                    
+                    if (response.ok) {
+                        firmwareBuffer = await response.arrayBuffer();
+                        if (firmwareBuffer.byteLength > 0) {
+                            console.log('✓ Download successful! Size:', firmwareBuffer.byteLength, 'bytes');
+                            downloadSuccess = true;
+                            break;
+                        } else {
+                            lastError = 'Downloaded file is empty';
+                        }
+                    } else {
+                        lastError = `HTTP ${response.status}: ${response.statusText}`;
+                        console.warn(`✗ HTTP error: ${lastError}`);
+                    }
                 }
             } catch (error) {
                 lastError = error.message;
@@ -302,9 +351,9 @@ async function flashFirmware(port, firmwareUrl) {
 
         updateProgress(20, 'Initializing flasher...');
 
-        // Use ESP Web Tools library
-        if (!window.espFlashState) {
-            throw new Error('ESP Web Tools not loaded. Please refresh the page.');
+        // Check if we have the serial port
+        if (!port) {
+            throw new Error('Serial port not available. Please try connecting again.');
         }
 
         updateProgress(30, 'Opening serial port...');
