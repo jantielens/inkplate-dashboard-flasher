@@ -254,21 +254,68 @@ async function flashFirmware(port, firmwareUrl) {
     try {
         updateProgress(0, 'Starting connection...');
 
-        // Download firmware 
+        // Download firmware with fallback for GitHub release URLs
         updateProgress(10, 'Downloading firmware...');
         console.log('Fetching firmware from:', firmwareUrl);
         
         let firmwareBuffer;
-        try {
-            const firmwareResponse = await fetch(firmwareUrl);
-            if (!firmwareResponse.ok) {
-                throw new Error(`HTTP Error: ${firmwareResponse.status} ${firmwareResponse.statusText}`);
+        let downloadSuccess = false;
+        let lastError = null;
+        
+        // Prepare fallback URLs if it's a GitHub release
+        const fallbackUrls = [firmwareUrl];
+        
+        if (firmwareUrl.includes('github.com') && firmwareUrl.includes('/releases/download/')) {
+            // Extract parts for jsdelivr CDN: https://cdn.jsdelivr.net/gh/user/repo@version/path/to/file
+            const match = firmwareUrl.match(/github\.com\/([^/]+)\/([^/]+)\/releases\/download\/([^/]+)\/(.*)/);
+            if (match) {
+                const [, owner, repo, tag, filename] = match;
+                const jsdelivrUrl = `https://cdn.jsdelivr.net/gh/${owner}/${repo}@${tag}/${filename}`;
+                fallbackUrls.push(jsdelivrUrl);
+                console.log('Added jsDelivr fallback:', jsdelivrUrl);
             }
-            firmwareBuffer = await firmwareResponse.arrayBuffer();
-            console.log('Downloaded firmware size:', firmwareBuffer.byteLength, 'bytes');
-        } catch (error) {
-            console.error('Firmware download error:', error);
-            throw new Error(`Failed to download firmware: ${error.message}\n\nURL: ${firmwareUrl}\n\nTry using the "Upload Local Firmware" option instead.`);
+        }
+        
+        // Try each URL
+        for (let i = 0; i < fallbackUrls.length && !downloadSuccess; i++) {
+            const url = fallbackUrls[i];
+            console.log(`Attempt ${i + 1}/${fallbackUrls.length}: ${url}`);
+            
+            try {
+                updateProgress(10 + (i * 2), `Downloading firmware (attempt ${i + 1})...`);
+                
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/octet-stream',
+                        'Cache-Control': 'no-cache'
+                    },
+                    redirect: 'follow'
+                });
+                
+                if (response.ok) {
+                    firmwareBuffer = await response.arrayBuffer();
+                    if (firmwareBuffer.byteLength > 0) {
+                        console.log('✓ Download successful! Size:', firmwareBuffer.byteLength, 'bytes');
+                        downloadSuccess = true;
+                        break;
+                    } else {
+                        lastError = 'Downloaded file is empty';
+                    }
+                } else {
+                    lastError = `HTTP ${response.status}: ${response.statusText}`;
+                    console.warn(`✗ HTTP error: ${lastError}`);
+                }
+            } catch (error) {
+                lastError = error.message;
+                console.warn(`✗ Fetch failed: ${lastError}`);
+            }
+        }
+        
+        // If all methods failed
+        if (!downloadSuccess) {
+            const suggestion = 'Please use the "Upload Local Firmware" section below to upload a .bin file instead.';
+            throw new Error(`Failed to download firmware.\n\nError: ${lastError}\n\n${suggestion}`);
         }
         
         const firmwareArray = new Uint8Array(firmwareBuffer);
