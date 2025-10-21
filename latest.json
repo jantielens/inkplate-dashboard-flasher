@@ -1,0 +1,30 @@
+{
+  "tag_name": "v0.13.0",
+  "published_at": "2025-10-21T17:52:21Z",
+  "assets": [
+    {
+      "board": "inkplate10",
+      "filename": "inkplate10-v0.13.0.bin",
+      "url": "https://github.com/jantielens/inkplate-dashboard/releases/download/v0.13.0/inkplate10-v0.13.0.bin",
+      "display_name": "Inkplate 10"
+    },
+    {
+      "board": "inkplate2",
+      "filename": "inkplate2-v0.13.0.bin",
+      "url": "https://github.com/jantielens/inkplate-dashboard/releases/download/v0.13.0/inkplate2-v0.13.0.bin",
+      "display_name": "Inkplate 2"
+    },
+    {
+      "board": "inkplate5v2",
+      "filename": "inkplate5v2-v0.13.0.bin",
+      "url": "https://github.com/jantielens/inkplate-dashboard/releases/download/v0.13.0/inkplate5v2-v0.13.0.bin",
+      "display_name": "Inkplate 5 V2"
+    },
+    {
+      "board": "inkplate6flick",
+      "filename": "inkplate6flick-v0.13.0.bin",
+      "url": "https://github.com/jantielens/inkplate-dashboard/releases/download/v0.13.0/inkplate6flick-v0.13.0.bin",
+      "display_name": "Inkplate 6 Flick"
+    }
+  ]
+}
