@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inkplate Firmware Flasher</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <main class="container">
+        <header>
+            <h1>Inkplate Firmware Flasher</h1>
+            <p class="browser-notice">Best viewed in Chromium-based browsers (Chrome, Edge, Opera)</p>
+        </header>
+
+        <section id="manifest-error" class="error-banner" hidden>
+            <p><strong>Notice:</strong> Could not load firmware manifest. Use local file upload below.</p>
+        </section>
+
+        <section id="content">
+            <!-- Firmware Selection -->
+            <section class="firmware-section">
+                <h2>Select Firmware</h2>
+                
+                <div id="loading" class="loading-spinner">
+                    <p>Loading firmware options...</p>
+                </div>
+
+                <div id="firmware-options" hidden>
+                    <div class="version-info">
+                        <p id="version-display"></p>
+                        <p id="published-display"></p>
+                    </div>
+
+                    <label for="board-select">Select your Inkplate board:</label>
+                    <select id="board-select" required>
+                        <option value="">-- Choose a board --</option>
+                    </select>
+
+                    <button id="connect-btn" class="primary-btn" disabled>Connect & Flash</button>
+                </div>
+            </section>
+
+            <!-- Progress & Status -->
+            <section id="progress-section" class="progress-section" hidden>
+                <h2>Flashing Progress</h2>
+                <div class="progress-container">
+                    <div id="progress-bar" class="progress-bar">
+                        <div id="progress-fill" class="progress-fill"></div>
+                    </div>
+                    <p id="progress-text">0%</p>
+                </div>
+                <p id="status-message"></p>
+            </section>
+
+            <!-- Device Info -->
+            <section id="device-info-section" class="device-info-section" hidden>
+                <h2>Device Information</h2>
+                <div class="device-info">
+                    <p><strong>MAC Address:</strong> <span id="device-mac">--</span></p>
+                    <p><strong>Chip:</strong> <span id="device-chip">--</span></p>
+                </div>
+                <button id="confirm-flash-btn" class="primary-btn">Confirm & Flash</button>
+                <button id="cancel-btn" class="secondary-btn">Cancel</button>
+            </section>
+
+            <!-- Local File Upload Fallback -->
+            <section class="local-upload-section">
+                <h2>Upload Local Firmware</h2>
+                <p class="help-text">If the automatic manifest fails, you can upload a .bin file directly.</p>
+                <div class="file-input-wrapper">
+                    <input type="file" id="local-file" accept=".bin" />
+                    <button id="flash-local-btn" class="secondary-btn" disabled>Flash Local File</button>
+                </div>
+                <p id="local-file-error" class="error-text" hidden></p>
+            </section>
+
+            <!-- Success/Completion Message -->
+            <section id="completion-section" class="completion-section" hidden>
+                <h2 id="completion-title">Flashing Complete!</h2>
+                <p id="completion-message"></p>
+                <button id="restart-btn" class="primary-btn">Flash Another Device</button>
+            </section>
+        </section>
+    </main>
+
+    <!-- esptool-js library for real firmware flashing -->
+    <script src="https://cdn.jsdelivr.net/npm/esptool-js@0.1.0/bundle.js"></script>
+    <script src="flash.js"></script>
+</body>
+</html>

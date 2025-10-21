@@ -1,0 +1,341 @@
+/* Global Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f9f9f9;
+}
+
+body {
+    padding: 20px;
+}
+
+/* Container */
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+}
+
+/* Header */
+header {
+    margin-bottom: 40px;
+    text-align: center;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 20px;
+}
+
+header h1 {
+    font-size: 28px;
+    margin-bottom: 10px;
+    color: #1a1a1a;
+}
+
+.browser-notice {
+    font-size: 13px;
+    color: #888;
+    font-style: italic;
+}
+
+/* Sections */
+section {
+    margin-bottom: 30px;
+}
+
+section h2 {
+    font-size: 18px;
+    margin-bottom: 15px;
+    color: #1a1a1a;
+}
+
+/* Form Elements */
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+select,
+input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 14px;
+    background-color: white;
+}
+
+select:hover,
+input[type="file"]:hover {
+    border-color: #bbb;
+}
+
+select:focus,
+input[type="file"]:focus {
+    outline: none;
+    border-color: #0066cc;
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+}
+
+select:disabled,
+input[type="file"]:disabled {
+    background-color: #f5f5f5;
+    color: #999;
+    cursor: not-allowed;
+}
+
+/* Buttons */
+button {
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 15px;
+}
+
+.primary-btn {
+    background-color: #0066cc;
+    color: white;
+    width: 100%;
+}
+
+.primary-btn:hover:not(:disabled) {
+    background-color: #0052a3;
+}
+
+.primary-btn:active:not(:disabled) {
+    transform: scale(0.98);
+}
+
+.primary-btn:disabled {
+    background-color: #ccc;
+    color: #666;
+    cursor: not-allowed;
+}
+
+.secondary-btn {
+    background-color: #f0f0f0;
+    color: #333;
+    width: 100%;
+}
+
+.secondary-btn:hover:not(:disabled) {
+    background-color: #e0e0e0;
+}
+
+.secondary-btn:active:not(:disabled) {
+    transform: scale(0.98);
+}
+
+.secondary-btn:disabled {
+    background-color: #f5f5f5;
+    color: #999;
+    cursor: not-allowed;
+}
+
+/* Spacing between buttons */
+button + button {
+    margin-left: 10px;
+    width: calc(50% - 5px);
+}
+
+/* Version Info */
+.version-info {
+    background-color: #f5f5f5;
+    padding: 12px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    font-size: 13px;
+}
+
+.version-info p {
+    margin: 4px 0;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.loading-spinner::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #ddd;
+    border-top-color: #0066cc;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-right: 10px;
+    vertical-align: middle;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Progress Bar */
+.progress-section {
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+.progress-container {
+    margin-bottom: 15px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 20px;
+    background-color: #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #0066cc, #0082ff);
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+#progress-text {
+    font-size: 13px;
+    color: #666;
+    text-align: center;
+}
+
+#status-message {
+    font-size: 14px;
+    color: #333;
+}
+
+/* Device Info */
+.device-info-section {
+    padding: 20px;
+    background-color: #f0f8ff;
+    border-left: 4px solid #0066cc;
+    border-radius: 4px;
+}
+
+.device-info {
+    background: white;
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    font-size: 13px;
+}
+
+.device-info p {
+    margin: 8px 0;
+}
+
+.device-info strong {
+    color: #1a1a1a;
+}
+
+.device-info span {
+    font-family: 'Courier New', monospace;
+    color: #0066cc;
+}
+
+/* File Input Wrapper */
+.file-input-wrapper {
+    margin-bottom: 15px;
+}
+
+#flash-local-btn {
+    margin-top: 10px;
+}
+
+/* Help Text */
+.help-text {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 15px;
+}
+
+/* Error Messages */
+.error-banner {
+    background-color: #fff3cd;
+    border: 1px solid #ffc107;
+    color: #856404;
+    padding: 12px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+.error-banner p {
+    margin: 0;
+}
+
+.error-text {
+    color: #d32f2f;
+    font-size: 13px;
+    margin-top: 8px;
+}
+
+/* Completion Section */
+.completion-section {
+    background-color: #e8f5e9;
+    border-left: 4px solid #4caf50;
+    padding: 20px;
+    border-radius: 4px;
+    text-align: center;
+}
+
+#completion-title {
+    color: #2e7d32;
+    margin-bottom: 15px;
+}
+
+#completion-message {
+    color: #388e3c;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+    .container {
+        padding: 20px;
+    }
+
+    header h1 {
+        font-size: 24px;
+    }
+
+    button + button {
+        margin-left: 0;
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    section {
+        margin-bottom: 25px;
+    }
+}
+
+/* Utility Classes */
+[hidden] {
+    display: none !important;
+}
